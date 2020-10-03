@@ -7,11 +7,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
   <!-- Compiled and minified JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <script src="/src/js/websocket-game.js"></script>
+  <script src="/src/js/timer-sec-frontend.js" defer></script>
+  <script src="/src/js/websocket-game.js" defer></script>
 </head>
 <body>
 <div class="container">
   <h1>Game by Websocket client</h1>
+  <div id="ticking" class="right-align"></div>
   <form action="" name="websocket-game">
     <div class="row">Seconds game: <input type="text" id="sec_game" name="sec_game"></div>
     <div class="row">Script game: <input type="text" id="script_game" name="script_game"></div>
