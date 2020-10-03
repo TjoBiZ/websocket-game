@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     document.getElementById("websocket-game").addEventListener("click", function(event){
         event.preventDefault()
+        init(); //clock ticking
         var seconds_game = document.getElementById('sec_game').value;
         var script_game = document.getElementById('script_game').value;
         socket.send(seconds_game + ' / ' + script_game);
