@@ -2,10 +2,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     // Setting WebSocket status start
 
-    //var socket = new WebSocket("wss://echo.websocket.org");
-    //var socket = new WebSocket("wss://site.loc/wss2/:8080/chat");
+    //var socket = new WebSocket("wss://echo.websocket.org"); // Test WebSocket connection for another server
+    var socket = new WebSocket("wss://site.loc/wss2/:8080"); // SSL HTTPS WebSocket
 
-    var socket = new WebSocket("ws://site.loc:8080");
+    //var socket = new WebSocket("ws://site.loc:8080"); //HTTP WebSocket
 
     var status = document.getElementById('status');
     var socket_messages = document.querySelector('.socket_messages');
