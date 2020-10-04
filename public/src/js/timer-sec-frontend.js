@@ -1,11 +1,13 @@
-function init()
-{
+var tickerID
+function init()     {
+    if (typeof sec !== "undefined") {
+        clearInterval(tickerID);
+    }
     sec = 0;
-    setInterval(ticking, 1000);
+    tickerID = setInterval(ticking, 1000);
 }
 
-function ticking()
-{
+function ticking() {
     sec++;
     document.getElementById("ticking").innerText = sec;
 }
