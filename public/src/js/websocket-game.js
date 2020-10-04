@@ -37,9 +37,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     // Settings WebSocket status stop
 
+    var websocketgame = document.getElementById("websocket-game");
 
-    document.getElementById("websocket-game").addEventListener("click", function(event){
+        websocketgame.addEventListener("click", function(event){
         event.preventDefault()
+        websocketgame.checkValidity();
+        websocketgame.reportValidity();
         init(); //clock ticking
         var seconds_game = document.getElementById('sec_game').value;
         var script_game = document.getElementById('script_game').value;
