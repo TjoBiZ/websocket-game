@@ -3,7 +3,7 @@ function init()     {
     if (typeof sec !== "undefined") {
         clearInterval(tickerID);
     }
-    sec = 0;
+    sec = -1;
     tickerID = setInterval(ticking, 1000);
 }
 

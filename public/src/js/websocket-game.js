@@ -3,9 +3,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Setting WebSocket status start
 
     //var socket = new WebSocket("wss://echo.websocket.org"); // Test WebSocket connection for another server
-    var socket = new WebSocket("wss://site.loc/wss2/:8080"); // SSL HTTPS WebSocket
+    //var socket = new WebSocket("wss://site.loc/wss2/:8080"); // SSL HTTPS WebSocket
 
-    //var socket = new WebSocket("ws://site.loc:8080"); //HTTP WebSocket
+    var socket = new WebSocket("ws://site.loc:8080"); //HTTP WebSocket
 
     var status = document.getElementById('status');
     var socket_messages = document.querySelector('.socket_messages');
@@ -13,7 +13,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
     socket.onopen = function(e) {
         //alert("[open] Connection established");
         //alert("Sending to server");
-        socket.send("My name is Roman");
+        var send = {
+            block_btn: false,
+            data: "Pls, put here your script game and submit"
+        };
+        //socket.send(JSON.stringify(send));
         status.innerHTML = "Connection established";
     };
 
@@ -28,7 +32,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
     };
 
     socket.onmessage = function(event) {
-       socket_messages.innerHTML = `[message] Data received from server: ${event.data}`;
+        clearInterval(tickerID); //Stop clock ticking
+        get_data= JSON.parse(event.data)
+        socket_messages.innerHTML = '[message] Data received from server:' + get_data.data;// + $event.data;
+
     };
 
     socket.onerror = function(error) {

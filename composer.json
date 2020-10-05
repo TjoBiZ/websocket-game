@@ -1,10 +1,14 @@
 {
     "autoload": {
         "psr-4": {
-            "MyApp\\": "src"
+            "MyApp\\": "src",
+            "ScriptGame\\": "src"
         }
     },
     "require": {
-        "cboden/ratchet": "^0.4.3"
+        "cboden/ratchet": "^0.4.3",
+        "react/event-loop": "^1.1",
+        "react/http": "^1.1",
+        "react/react": "^1.1"
     }
 }
