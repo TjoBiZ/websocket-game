@@ -1,3 +1,6 @@
+Copy to your server directory and don't forgot about in this folder
+%>composer update
+
 Instruction install WebSocket by SSL connection - wss://
 
 If you use NGINX settings for ssl
