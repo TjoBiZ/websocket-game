@@ -1,8 +1,7 @@
 {
     "autoload": {
         "psr-4": {
-            "MyApp\\": "src",
-            "ScriptGame\\": "src"
+            "MyApp\\": "src"
         }
     },
     "require": {

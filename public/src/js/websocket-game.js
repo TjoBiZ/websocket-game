@@ -3,9 +3,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Setting WebSocket status start
 
     //var socket = new WebSocket("wss://echo.websocket.org"); // Test WebSocket connection for another server
-    //var socket = new WebSocket("wss://site.loc/wss2/:8080"); // SSL HTTPS WebSocket
+    var socket = new WebSocket("wss://site.loc/wss2/:8080"); // SSL HTTPS WebSocket
 
-    var socket = new WebSocket("ws://site.loc:8080"); //HTTP WebSocket
+    //var socket = new WebSocket("ws://site.loc:8080"); //HTTP WebSocket
 
     var status = document.getElementById('status');
     var socket_messages = document.querySelector('.socket_messages');
@@ -50,14 +50,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
         event.preventDefault();
             document.getElementById('throwformatsec').innerHTML = document.getElementById('throwformatscript').innerHTML = '';
             //validation seconds input
-        var patt = /\d+/i;
+        var patt = /[1-9]{1}\d{0,2}/i;
         s = document.getElementById('sec_game').value;
         var n = s.match(patt);
         if (n === null || n[0] !== s) {
-            document.getElementById('throwformatsec').innerHTML = '<p style="color:red;">Wrong format, pls enter numbers!</p>';
-            throw 'The Seconds Input has not correct value';
+            document.getElementById('throwformatsec').innerHTML = '<p style="color:red;">Wrong format, pls enter numbers 1-999!</p>';
+            throw 'The Seconds Input has not correct value. You should write 1-999';
         }
         var plan_game = {}
+        var one_second = '';
         plan_game['sec_game'] = n[0];
             //validation script game input
         var patt = /(\d|\w|\s)+/i;
