@@ -32,37 +32,33 @@ class Chat implements MessageComponentInterface {
             /** ================================================================================================ **/
             $loop = \React\EventLoop\Factory::create();
             $loop->addTimer(0, function () use ($msg, $client) {
-            //$msg = '{"sec_game":"19","game":{"0":"","2":"Australia","4":"Mexico","5":"","6":"","7":"Australia","8":"","9":"Brazil","10":"Germany","11":"India","12":"United Kingdom","13":"Canada","14":"","15":"United States","16":"Australia","17":"Canada","18":"Australia","19":""}}';
                 $msg2 = json_decode($msg, true);
+                array_walk_recursive($msg2, array($this, 'validator_json_order')); //Step check validate post data for hacker attack
                 $response_game = [];
                 $response_game['block_btn'] = 'true';
                 $response_game['data'] = 'The game stared...';
-                $response_game_json = json_encode($response_game);
                 $time_game = $msg2["sec_game"];
-                $plan_game = $msg2["game"];
                 $sec = 0;
-                $result_game_web = [];
                 $result_game_log_file = [];
                 /**
                  * END logic prepare start data and function for send data to frontend
                  */
 
                 while ($sec <= $time_game) {
-                    if (isset($plan_game[$sec]) && $plan_game[$sec] != "") {
-                        // Events for send processing game
-                        if (!isset($result_game_web[$msg2["game"][$sec]])) {
-                            $result_game_web[$msg2["game"][$sec]] = 1;
-                            $r01 = $result_game_web;
-                            arsort($r01);
-                            $this->gaming($r01, $response_game, $client);
-                        } else {
-                            $result_game_web[$msg2["game"][$sec]]++;
-                            $r01 = $result_game_web;
-                            arsort($r01);
-                            $this->gaming($r01, $response_game, $client);
+                    // Events for send processing game
+                    if (isset($msg2["game"][$sec])) { //If this second exist plan game then start logic output processing game
+                        foreach ($msg2["game"] as $k => $v) {
+                            asort($v);
+                            $v = array_values($v);
+                            $r01[$k] = $v;
                         }
-                        if (!isset($result_game_log_file[$sec])) {
-                            $result_game_log_file[$sec] =  $plan_game[$sec] . ':' . $result_game_web[$msg2["game"][$sec]];
+                        $r01 = array_filter($r01, function ($k) use ($sec){
+                            return $k <= $sec;
+                        }, ARRAY_FILTER_USE_KEY);
+                        $this->gaming($r01, $response_game, false, $client);
+                        $result_game_log_file[$sec] = '';
+                        foreach ($r01[$sec] as $k => $v) { //For log file time got goal
+                            $result_game_log_file[$sec] .=  $v . ' '; //History time goals log
                         }
                     }
                     sleep(1);
@@ -100,10 +96,20 @@ class Chat implements MessageComponentInterface {
 
 
 
-    public function gaming($r01, $response_game, $client){
+    public function gaming($r01, $response_game, $call_finish, $client){
         $r01_web = '';
+        $now_goals = [];
         foreach ($r01 as $key_c => $item) {
-            $r01_web .= $item . ' ' . $key_c . '<br>';
+            foreach ($item as $country) {
+                array_push($now_goals, $country);
+            }
+        }
+        $now_goals = array_count_values($now_goals);
+        ksort($now_goals);
+        arsort($now_goals);
+        if ($call_finish == true) { return $now_goals; }
+        foreach ($now_goals as $country => $goals) {
+            $r01_web .= $goals . ' ' . $country . '<br>';
         }
         $output_web = <<<HERE
     The game is processing now, you can watch it.<br><br>Game scores at this moment:<br><br>$r01_web;
@@ -119,7 +125,8 @@ class Chat implements MessageComponentInterface {
         $win = false;
         $win_list = $r01_web = $r01_log = $r02_web = $r02_log = '';
         $count = '0';
-        foreach ($r01 as $k => $v) {
+        $goals = $this->gaming($r01, $response_game, true, $client);
+        foreach ($goals as $k => $v) {
             if ($count == 0) {
                 array_push($accum, $v);
                 $win_list = $k;
@@ -135,7 +142,7 @@ class Chat implements MessageComponentInterface {
             $count++;
         }
 
-        foreach ($r01 as $key_c => $item) {
+        foreach ($goals as $key_c => $item) {
             $r01_web .= $item . ' ' . $key_c . '<br>';
             $r01_log .= $item . ' ' . $key_c . "\n";
         }
@@ -146,9 +153,11 @@ class Chat implements MessageComponentInterface {
 
         if ($win) {
             $seconds_goal = [];
-            foreach ($msg2["game"] as $key_s =>$value) {
-                if ($value == $win_list) {
-                    array_push($seconds_goal, $key_s);
+            foreach ($msg2["game"] as $second =>$arr) {
+                foreach ($arr as $k => $v) {
+                    if ($v == $win_list) {
+                        array_push($seconds_goal, $second);
+                    }
                 }
             }
             $last_second = max($seconds_goal);
@@ -202,6 +211,17 @@ HERE;
 
     }
 
+    /**
+     * Check validate data in json array for hack XSS and delete enter(next row "\n") but change it to <br>.
+     * array_walk_recursive($data_form, array($this, 'validator_json_order')); //Step check validate post data for hacker attack
+     */
+    public function validator_json_order(&$val,  $key)
+    {
+        if (!($val === null || $val === true || $val === false || $val === '' || $val === 'undefined')) {
+            $val = htmlspecialchars(strip_tags($val));
+            $key = htmlspecialchars(strip_tags($key));
+        }
+    }
 
 
 

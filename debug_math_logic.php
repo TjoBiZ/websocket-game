@@ -1,11 +1,11 @@
 <?php
 
-$msg = '{"sec_game":"19","game":{"0":"","2":"Australia","2":"Mexico","5":"","6":"","7":"Australia","8":"","9":"Brazil","10":"Germany","11":"India","12":"United Kingdom","13":"Canada","14":"","15":"United States","16":"Australia","17":"Canada","18":"Australia","19":""}}';
+//$msg = '{"sec_game":"19","game":{"0":"","2":"Australia","2":"Mexico","5":"","6":"","7":"Australia","8":"","9":"Brazil","10":"Germany","11":"India","12":"United Kingdom","13":"Canada","14":"","15":"United States","16":"Australia","17":"Canada","18":"Australia","19":""}}';
 
+$msg = '{"sec_game":"18","game":{"1":["Canada"],"3":["Estonia<?php info(); ?>","Japan","<b>Australia</b>"],"4":["Germany"],"5":["India"],"6":["China"],"7":["United Kingdom"],"8":["Canada"],"10":["United States"],"11":["Australia"],"12":["Canada"],"13":["Australia"]}}';
 
     $msg2 = json_decode($msg, true);
-$msg3 = json_decode($msg, false);
-$msg4 = json_decode($msg);
+    array_walk_recursive($msg2, 'validator_json_order'); //Step check validate post data for hacker attack
     $response_game = [];
     $response_game['block_btn'] = 'true';
     $response_game['data'] = 'The game stared...';
@@ -20,21 +20,19 @@ $msg4 = json_decode($msg);
      */
 
     while ($sec <= $time_game) {
-        if (isset($plan_game[$sec]) && $plan_game[$sec] != "") {
             // Events for send processing game
-            if (!isset($result_game_web[$msg2["game"][$sec]])) {
-                $result_game_web[$msg2["game"][$sec]] = 1;
-                $r01 = $result_game_web;
-                arsort($r01);
-                gaming($r01, $response_game);
-            } else {
-                $result_game_web[$msg2["game"][$sec]]++;
-                $r01 = $result_game_web;
-                arsort($r01);
-                gaming($r01, $response_game);
+        if (isset($msg2["game"][$sec])) { //If this second exist plan game then start logic output processing game
+            foreach ($msg2["game"] as $k => $v) {
+                asort($v);
+                $v = array_values($v);
+                $r01[$k] = $v;
             }
-            if (!isset($result_game_log_file[$sec])) {
-                $result_game_log_file[$sec] =  $plan_game[$sec] . ':' . $result_game_web[$msg2["game"][$sec]];
+            $r01 = array_filter($r01, function ($k) use ($sec){
+                return $k <= $sec;
+            }, ARRAY_FILTER_USE_KEY);
+            gaming($r01, $response_game, false);
+            foreach ($r01[$sec] as $k => $v) { //For log file time got goal
+                $result_game_log_file[$sec] .=  $v . ' '; //History time goals log
             }
         }
         //sleep(1);
@@ -42,11 +40,20 @@ $msg4 = json_decode($msg);
     }
 
 
-
-    function gaming($r01, $response_game){
+    function gaming($r01, $response_game, $call_finish){
         $r01_web = '';
+        $now_goals = [];
         foreach ($r01 as $key_c => $item) {
-            $r01_web .= $item . ' ' . $key_c . '<br>';
+            foreach ($item as $country) {
+                array_push($now_goals, $country);
+            }
+        }
+        $now_goals = array_count_values($now_goals);
+        ksort($now_goals);
+        arsort($now_goals);
+        if ($call_finish == true) { return $now_goals; }
+        foreach ($now_goals as $country => $goals) {
+            $r01_web .= $goals . ' ' . $country . '<br>';
         }
         $output_web = <<<HERE
     The game is processing now, you can watch it.<br><br>Game scores at this moment:<br><br>$r01_web;
@@ -61,7 +68,8 @@ $msg4 = json_decode($msg);
         $win = false;
         $win_list = $r01_web = $r01_log = $r02_web = $r02_log = '';
         $count = '0';
-        foreach ($r01 as $k => $v) {
+        $goals = gaming($r01, $response_game, true);
+        foreach ($goals as $k => $v) {
             if ($count == 0) {
                 array_push($accum, $v);
                 $win_list = $k;
@@ -77,7 +85,7 @@ $msg4 = json_decode($msg);
             $count++;
         }
 
-        foreach ($r01 as $key_c => $item) {
+        foreach ($goals as $key_c => $item) {
             $r01_web .= $item . ' ' . $key_c . '<br>';
             $r01_log .= $item . ' ' . $key_c . "\n";
         }
@@ -88,9 +96,11 @@ $msg4 = json_decode($msg);
 
         if ($win) {
             $seconds_goal = [];
-            foreach ($msg2["game"] as $key_s =>$value) {
-                if ($value == $win_list) {
-                    array_push($seconds_goal, $key_s);
+            foreach ($msg2["game"] as $second =>$arr) {
+                foreach ($arr as $k => $v) {
+                    if ($v == $win_list) {
+                        array_push($seconds_goal, $second);
+                    }
                 }
             }
             $last_second = max($seconds_goal);
@@ -143,13 +153,19 @@ HERE;
 
     }
 
+/**
+ * Check validate data in json array for hack XSS and delete enter(next row "\n") but change it to <br>.
+ * array_walk_recursive($data_form, array($this, 'validator_json_order')); //Step check validate post data for hack with OOP
+ */
+    function validator_json_order(&$val,  $key)
+    {
+        if (!($val === null || $val === true || $val === false || $val === '' || $val === 'undefined')) {
+            $val = htmlspecialchars(strip_tags($val));
+            $key = htmlspecialchars(strip_tags($key));
+        }
+    }
+
 
     //This place Event Finish game.
     $r02 = $result_game_log_file;
     finish_game($r01, $r02, $msg2["sec_game"], $msg2, $response_game);
-    echo "After timer\n";
-
-
-echo "Before timer\n";
-
-$loop->run();

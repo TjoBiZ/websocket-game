@@ -35,7 +35,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         clearInterval(tickerID); //Stop clock ticking
         get_data= JSON.parse(event.data)
         socket_messages.innerHTML = '[message] Data received from server:' + get_data.data;// + $event.data;
-
+        document.getElementById('websocket-game').classList.remove('disabled');
+        document.getElementById('websocket-game').textContent = 'Start game';
     };
 
     socket.onerror = function(error) {
@@ -58,7 +59,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
             throw 'The Seconds Input has not correct value. You should write 1-999';
         }
         var plan_game = {}
-        var one_second = '';
         plan_game['sec_game'] = n[0];
             //validation script game input
         var patt = /(\d|\w|\s)+/i;
@@ -68,23 +68,57 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 document.getElementById('throwformatscript').innerHTML = '<p style="color:red;">Wrong format, pls enter numbers and letters!</p>';
                 throw 'The Script Input has not correct value';
         }
+        document.getElementById('websocket-game').classList.add('disabled');
+            document.getElementById('websocket-game').textContent = 'Waiting';
         var arr_script = document.getElementById('script_game').value.split('\n');
             //Prepear array for send to
             var game = {};
+            //this.one_second = []; //One second more the one command
+            //this.one_second_countries = []; //One second more Countries
+            this.arr_script = arr_script;
             arr_script.forEach(function (currentValue , index, array) {
+
+                //Delete all space rows! Regular expression
+                var patt = /^\s+$/i;
+                var check_space = currentValue.match(patt);
+                if (check_space !== null && check_space[0] === currentValue) {
+                    currentValue = '';
+                }
+
                 if (currentValue !== '') {
-                    var patt = /^\d+/i;
+                    patt = /^\d+/i;
                     var key_game = currentValue.match(patt);
-                    var patt = /(?<=^\d+\s).*/i;
-                    value_game = currentValue.match(patt);
+                    patt = /(?<=^\d+\s).*/i;
+                    var value_game = currentValue.match(patt);
+                    if (value_game !== null) {
+                        patt = /^\s+$/i;
+                        check_space = value_game[0].match(patt);
+                        if (check_space !== null && check_space[0] === value_game[0]) {
+                            value_game[0] = '';
+                        }
+                    }
                     if (value_game === null) {
                         value_game = '';
                     } else {
-                        value_game = value_game[0];
+                        var group_one_sec = []
+                        function one_second_teams(value) {
+                            patt = /^\d+/i;
+                            var sec = value.match(patt);
+                            if (sec !== null && sec[0] === key_game[0]) {
+                                patt = /(?<=^\d+\s).*/i;
+                                var band_country= value.match(patt);
+                                if (band_country !==null) {
+                                    group_one_sec.push(band_country[0]);
+                                }
+                            }
+                        }
+                        this.arr_script.filter(one_second_teams);
                     }
-                    game[key_game[0]] = value_game;
+                    if (value_game !== null && value_game[0] !=0) {
+                        game[key_game[0]] = group_one_sec;
+                    }
                 }
-            });
+            }, this);
         plan_game['game'] = game;
         var json_game = JSON.stringify(plan_game);
         socket.send(json_game);
