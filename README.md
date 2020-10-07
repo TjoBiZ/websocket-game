@@ -38,3 +38,15 @@ For JS - var ws = new WebSocket("wss://ratchet.mydomain.org/wss2/NNN");
 
 If you use linux Panels then this instruction:
 https://ru.stackoverflow.com/questions/757351/%D0%9F%D0%BE%D0%BC%D0%BE%D0%B3%D0%B8%D1%82%D0%B5-%D1%81-%D0%BF%D1%80%D0%BE%D0%BA%D1%81%D0%B8-nginx-%D0%B4%D0%BB%D1%8F-websocket
+
+
+Autorun WebSocket Server with crontab
+Add to you cron
+
+If you want stop program for start from console and online monitoring then look PID in file mydaemon.pid and stop process
+    
+    #kill -9 1234
+    #ps -p 1234
+    #ps up `cat /bin/mydaemon.pid ` >/dev/null && echo "Running" || echo "Not running"
+    
+ps -p - show status process in your OS

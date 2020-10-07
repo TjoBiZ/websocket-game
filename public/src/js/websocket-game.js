@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     socket.onclose = function(event) {
         if (event.wasClean) {
-            status.innerHTML = `[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`;
+            status.innerHTML = '[close] Connection closed cleanly, code=' + event.code + 'reason=' + event.reason;
         } else {
             // e.g. server process killed or network down
             // event.code is usually 1006 in this case
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     };
 
     socket.onerror = function(error) {
-        socket_messages.innerHTML = `[error] ${error.message}`;
+        socket_messages.innerHTML = '[error] ' + error.message;
     };
 
     // Settings WebSocket status stop
